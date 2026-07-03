@@ -1,0 +1,5 @@
+# TODO: implement dbt validation (compile, lint, test)
+dbt_validate:
+  stage: validate
+  script:
+    - echo "dbt validate — not yet implemented"

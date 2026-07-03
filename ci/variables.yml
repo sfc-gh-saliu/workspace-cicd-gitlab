@@ -1,0 +1,3 @@
+variables:
+  CI_BOT_EMAIL: "gitlab-ci-bot@example.com"
+  CI_BOT_NAME: "gitlab-ci-bot"

@@ -1,0 +1,57 @@
+default:
+  image: alpine/git:latest
+
+variables:
+  GITLAB_DEV_BRANCH: "cicd-demo-dev"
+  GITLAB_MAIN_BRANCH: "cicd-demo-main"
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $GITLAB_DEV_BRANCH
+    - when: never
+
+stages:
+  - triage
+  - promote
+  - rollback
+
+include:
+  - local: 'ci/variables.yml'
+  - local: 'ci/promote.yml'
+  - local: 'ci/rollback.yml'
+
+trigger_notebook_workflow:
+  stage: triage
+  trigger:
+    include: ci/nb/workflow.yml
+    strategy: depend
+  rules:
+    - changes:
+        - notebooks/**/*
+
+trigger_dbt_workflow:
+  stage: triage
+  trigger:
+    include: ci/dbt/workflow.yml
+    strategy: depend
+  rules:
+    - changes:
+        - dbt-projects/**/*
+
+trigger_dcm_workflow:
+  stage: triage
+  trigger:
+    include: ci/dcm/workflow.yml
+    strategy: depend
+  rules:
+    - changes:
+        - dcm-projects/**/*
+
+trigger_custom_workflow:
+  stage: triage
+  trigger:
+    include: ci/custom/workflow.yml
+    strategy: depend
+  rules:
+    - changes:
+        - custom-projects/**/*

@@ -1,0 +1,14 @@
+nb_deploy_to_prod:
+  stage: deploy_prod
+  interruptible: true
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - nb_detect_and_resolve
+    - nb_execute_in_dev
+  before_script:
+    - pip install --upgrade snowflake-cli
+    - snow --version
+  script:
+    - python ci/nb/scripts/deploy.py > affected_projects.tsv
+    - bash ci/nb/scripts/deploy.sh "$SNOWFLAKE_CONNECTION_PROD"

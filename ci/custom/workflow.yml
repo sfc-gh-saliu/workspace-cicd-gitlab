@@ -1,0 +1,12 @@
+default:
+  image: alpine:latest
+
+stages:
+  - validate
+  - promote
+  - rollback
+
+include:
+  - local: 'ci/custom/stages/validate.yml'
+  - local: 'ci/promote.yml'
+  - local: 'ci/rollback.yml'

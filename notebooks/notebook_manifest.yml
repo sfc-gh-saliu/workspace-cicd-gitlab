@@ -1,0 +1,27 @@
+projects:
+  # Uses DEFAULT_SNOWFLAKE_NOTEBOOK_* CI/CD variables for all deploy and execute settings
+  - project_name: sales_forecast
+    project_path: notebooks/sales_forecast
+    main_file: main.ipynb
+
+  # Explicitly defines deploy and execute settings per project
+  - project_name: churn_scoring
+    project_path: notebooks/churn_scoring
+    main_file: driver.ipynb
+    deploy:
+      database: SANDBOX
+      schema: PUBLIC
+      stage: NOTEBOOK_STAGE
+      notebook_project: CHURN_SCORING_NPO
+    execute:
+      compute_pool: CHURN_SCORING_POOL
+      query_warehouse: CHURN_SCORING_WH
+      runtime: V2.5-GPU-PY3.12
+      arguments: '{"batch_size": 100}'
+      requirements_file: requirements.txt
+      artifact_repositories:
+        - SNOWFLAKE.SNOWPARK.PYPI_SHARED_REPOSITORY
+      # external_access_integrations:
+      #   - PYPI_ACCESS_INTEGRATION
+      # secrets:
+      #   - cred = CHURN_SCORING_SECRET

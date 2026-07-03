@@ -1,0 +1,19 @@
+default:
+  image: python:3.12
+
+stages:
+  - detect
+  - validate
+  - deploy_dev
+  - execute_dev
+  - deploy_prod
+
+variables:
+  NOTEBOOK_MANIFEST_FILE: "notebooks/notebook_manifest.yml"
+
+include:
+  - local: 'ci/nb/stages/detect.yml'
+  - local: 'ci/nb/stages/validate.yml'
+  - local: 'ci/nb/stages/deploy_dev.yml'
+  - local: 'ci/nb/stages/execute_dev.yml'
+  - local: 'ci/nb/stages/deploy_prod.yml'

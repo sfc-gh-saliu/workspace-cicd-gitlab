@@ -1,0 +1,16 @@
+default:
+  image: python:3.12
+
+stages:
+  - validate
+  - deploy_dev
+  - deploy_prod
+  - promote
+  - rollback
+
+include:
+  - local: 'ci/dbt/stages/validate.yml'
+  - local: 'ci/dbt/stages/deploy_dev.yml'
+  - local: 'ci/dbt/stages/deploy_prod.yml'
+  - local: 'ci/promote.yml'
+  - local: 'ci/rollback.yml'

@@ -1,0 +1,21 @@
+rollback_dev:
+  stage: rollback
+  resource_group: deploy_pipeline
+  when: on_failure
+  before_script: []
+  script:
+    - |
+      echo "Pipeline failed. Resetting ${GITLAB_DEV_BRANCH} back to ${GITLAB_MAIN_BRANCH}..."
+
+      git config user.email "$CI_BOT_EMAIL"
+      git config user.name "$CI_BOT_NAME"
+
+      AUTH=$(echo -n "${GITLAB_CI_BOT_USER}:${GITLAB_CI_BOT_TOKEN}" | base64)
+      HEADER="Authorization: Basic ${AUTH}"
+      REMOTE_URL="https://${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+      git remote set-url origin "$REMOTE_URL"
+
+      git -c http.extraheader="$HEADER" fetch origin "$GITLAB_MAIN_BRANCH"
+      git -c http.extraheader="$HEADER" push --force origin "${GITLAB_MAIN_BRANCH}:${GITLAB_DEV_BRANCH}"
+
+      echo "${GITLAB_DEV_BRANCH} has been reset to ${GITLAB_MAIN_BRANCH}."

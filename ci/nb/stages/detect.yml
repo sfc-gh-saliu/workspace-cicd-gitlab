@@ -1,0 +1,14 @@
+nb_detect_and_resolve:
+  stage: detect
+  interruptible: true
+  variables:
+    GIT_DEPTH: "0"
+  before_script:
+    - pip install --upgrade pyyaml
+  script:
+    - python ci/nb/scripts/detect.py
+  artifacts:
+    paths:
+      - affected_projects.json
+      - notebooks/
+      - ci/nb/scripts/

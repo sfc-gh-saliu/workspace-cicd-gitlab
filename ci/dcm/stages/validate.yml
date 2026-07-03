@@ -1,0 +1,5 @@
+# TODO: implement dcm validation
+dcm_validate:
+  stage: validate
+  script:
+    - echo "dcm validate — not yet implemented"

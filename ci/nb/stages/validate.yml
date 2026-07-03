@@ -1,0 +1,9 @@
+nb_validate:
+  stage: validate
+  interruptible: true
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - nb_detect_and_resolve
+  script:
+    - python ci/nb/scripts/validate.py

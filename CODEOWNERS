@@ -1,0 +1,19 @@
+[Repo Admin] @Repo-Admin
+*.md
+CODEOWNERS
+
+[Dev Ops] @Dev-Ops
+.gitlab-ci.yml
+ci/**/*
+
+[DCM Projects] @DCM-Projects
+dcm-projects/**/*
+
+[dbt Projects] @dbt-Projects
+dbt-projects/**/*
+
+[Notebooks] @Notebooks
+notebooks/**/*
+
+[Custom Project] @Custom-Project
+custom-projects/**/*

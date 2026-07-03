@@ -1,0 +1,7 @@
+# TODO: implement dbt DEV deployment (dbt run against DEV target)
+dbt_deploy_to_dev:
+  stage: deploy_dev
+  needs:
+    - dbt_validate
+  script:
+    - echo "dbt deploy to DEV — not yet implemented"

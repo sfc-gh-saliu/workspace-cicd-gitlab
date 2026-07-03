@@ -1,0 +1,7 @@
+# TODO: implement dbt PROD deployment (dbt run against PROD target)
+dbt_deploy_to_prod:
+  stage: deploy_prod
+  needs:
+    - dbt_deploy_to_dev
+  script:
+    - echo "dbt deploy to PROD — not yet implemented"

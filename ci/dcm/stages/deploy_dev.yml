@@ -1,0 +1,7 @@
+# TODO: implement dcm DEV deployment
+dcm_deploy_to_dev:
+  stage: deploy_dev
+  needs:
+    - dcm_validate
+  script:
+    - echo "dcm deploy to DEV — not yet implemented"
