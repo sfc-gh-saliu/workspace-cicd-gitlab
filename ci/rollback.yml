@@ -7,28 +7,23 @@ rollback_dev:
     - |
       echo "=== [stage: rollback] [job: rollback_dev] STARTED ==="
 
-      echo ">> Step 1/5: Configuring git identity..."
+      echo ">> Step 1/4: Configuring git identity..."
       git config user.email "$CI_BOT_EMAIL"
       git config user.name "$CI_BOT_NAME"
-      echo ">> Step 1/5: Done."
+      echo ">> Step 1/4: Done."
 
-      echo ">> Step 2/5: Building auth header..."
-      AUTH=$(echo -n "${GITLAB_CI_BOT_USER}:${GITLAB_CI_BOT_TOKEN}" | base64)
-      HEADER="Authorization: Basic ${AUTH}"
-      echo ">> Step 2/5: Done. (user=${GITLAB_CI_BOT_USER}, token_length=${#GITLAB_CI_BOT_TOKEN})"
-
-      echo ">> Step 3/5: Setting remote URL..."
-      REMOTE_URL="https://${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+      echo ">> Step 2/4: Setting authenticated remote URL..."
+      REMOTE_URL="https://${GITLAB_CI_BOT_USER}:${GITLAB_CI_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git remote set-url origin "$REMOTE_URL"
-      echo ">> Step 3/5: Done. (remote=${REMOTE_URL})"
+      echo ">> Step 2/4: Done. (host=${CI_SERVER_HOST}, project=${CI_PROJECT_PATH}, user=${GITLAB_CI_BOT_USER}, token_length=${#GITLAB_CI_BOT_TOKEN})"
 
-      echo ">> Step 4/5: Fetching ${GITLAB_MAIN_BRANCH}..."
-      git -c http.extraheader="$HEADER" fetch origin "$GITLAB_MAIN_BRANCH"
-      echo ">> Step 4/5: Done."
+      echo ">> Step 3/4: Fetching ${GITLAB_MAIN_BRANCH}..."
+      git fetch origin "$GITLAB_MAIN_BRANCH"
+      echo ">> Step 3/4: Done."
 
-      echo ">> Step 5/5: Force-pushing ${GITLAB_MAIN_BRANCH} to ${GITLAB_DEV_BRANCH}..."
-      git -c http.extraheader="$HEADER" push --force origin "${GITLAB_MAIN_BRANCH}:${GITLAB_DEV_BRANCH}"
-      echo ">> Step 5/5: Done."
+      echo ">> Step 4/4: Force-pushing ${GITLAB_MAIN_BRANCH} to ${GITLAB_DEV_BRANCH}..."
+      git push --force origin "${GITLAB_MAIN_BRANCH}:${GITLAB_DEV_BRANCH}"
+      echo ">> Step 4/4: Done."
 
       echo "=== [stage: rollback] [job: rollback_dev] FINISHED ==="
       echo "${GITLAB_DEV_BRANCH} has been reset to ${GITLAB_MAIN_BRANCH}."
