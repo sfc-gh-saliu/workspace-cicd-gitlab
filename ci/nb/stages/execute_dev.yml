@@ -7,8 +7,14 @@ nb_execute_in_dev:
     - nb_detect_and_resolve
     - nb_deploy_to_dev
   before_script:
+    - echo "=== [stage: execute_dev] [job: nb_execute_in_dev] STARTED ==="
+    - echo ">> Installing Snowflake CLI..."
     - pip install --upgrade snowflake-cli
     - snow --version
+    - echo ">> Snowflake CLI ready."
   script:
+    - echo ">> Generating execution manifest..."
     - python ci/nb/scripts/execute_dev.py
+    - echo ">> Executing notebooks in DEV..."
     - bash ci/nb/scripts/execute_dev.sh "$SNOWFLAKE_CONNECTION_DEV"
+    - echo "=== [stage: execute_dev] [job: nb_execute_in_dev] FINISHED ==="

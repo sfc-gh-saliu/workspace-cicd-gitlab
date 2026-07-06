@@ -2,4 +2,6 @@
 dbt_validate:
   stage: validate
   script:
+    - echo "=== [stage: validate] [job: dbt_validate] STARTED ==="
     - echo "dbt validate — not yet implemented"
+    - echo "=== [stage: validate] [job: dbt_validate] FINISHED ==="

@@ -7,17 +7,30 @@ promote_to_main:
   before_script: []
   script:
     - |
-      echo "All stages passed. Promoting ${GITLAB_DEV_BRANCH} to ${GITLAB_MAIN_BRANCH}..."
+      echo "=== [stage: promote] [job: promote_to_main] STARTED ==="
 
+      echo ">> Step 1/5: Configuring git identity..."
       git config user.email "$CI_BOT_EMAIL"
       git config user.name "$CI_BOT_NAME"
+      echo ">> Step 1/5: Done."
 
+      echo ">> Step 2/5: Building auth header..."
       AUTH=$(echo -n "${GITLAB_CI_BOT_USER}:${GITLAB_CI_BOT_TOKEN}" | base64)
       HEADER="Authorization: Basic ${AUTH}"
+      echo ">> Step 2/5: Done. (user=${GITLAB_CI_BOT_USER}, token_length=${#GITLAB_CI_BOT_TOKEN})"
+
+      echo ">> Step 3/5: Setting remote URL..."
       REMOTE_URL="https://${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git remote set-url origin "$REMOTE_URL"
+      echo ">> Step 3/5: Done. (remote=${REMOTE_URL})"
 
+      echo ">> Step 4/5: Fetching branches..."
       git -c http.extraheader="$HEADER" fetch origin "$GITLAB_DEV_BRANCH" "$GITLAB_MAIN_BRANCH"
-      git -c http.extraheader="$HEADER" push origin "${GITLAB_DEV_BRANCH}:${GITLAB_MAIN_BRANCH}"
+      echo ">> Step 4/5: Done."
 
+      echo ">> Step 5/5: Pushing ${GITLAB_DEV_BRANCH} to ${GITLAB_MAIN_BRANCH}..."
+      git -c http.extraheader="$HEADER" push origin "${GITLAB_DEV_BRANCH}:${GITLAB_MAIN_BRANCH}"
+      echo ">> Step 5/5: Done."
+
+      echo "=== [stage: promote] [job: promote_to_main] FINISHED ==="
       echo "${GITLAB_MAIN_BRANCH} has been fast-forwarded to ${GITLAB_DEV_BRANCH} (${CI_COMMIT_SHA})."

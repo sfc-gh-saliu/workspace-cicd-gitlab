@@ -2,4 +2,6 @@
 dcm_validate:
   stage: validate
   script:
+    - echo "=== [stage: validate] [job: dcm_validate] STARTED ==="
     - echo "dcm validate — not yet implemented"
+    - echo "=== [stage: validate] [job: dcm_validate] FINISHED ==="

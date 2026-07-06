@@ -7,8 +7,14 @@ nb_deploy_to_prod:
     - nb_detect_and_resolve
     - nb_execute_in_dev
   before_script:
+    - echo "=== [stage: deploy_prod] [job: nb_deploy_to_prod] STARTED ==="
+    - echo ">> Installing Snowflake CLI..."
     - pip install --upgrade snowflake-cli
     - snow --version
+    - echo ">> Snowflake CLI ready."
   script:
+    - echo ">> Generating deployment manifest..."
     - python ci/nb/scripts/deploy.py > affected_projects.tsv
+    - echo ">> Deploying to PROD..."
     - bash ci/nb/scripts/deploy.sh "$SNOWFLAKE_CONNECTION_PROD"
+    - echo "=== [stage: deploy_prod] [job: nb_deploy_to_prod] FINISHED ==="

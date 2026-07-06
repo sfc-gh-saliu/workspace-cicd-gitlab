@@ -4,9 +4,14 @@ nb_detect_and_resolve:
   variables:
     GIT_DEPTH: "0"
   before_script:
+    - echo "=== [stage: detect] [job: nb_detect_and_resolve] STARTED ==="
+    - echo ">> Installing dependencies..."
     - pip install --upgrade pyyaml
+    - echo ">> Dependencies installed."
   script:
+    - echo ">> Running detect script..."
     - python ci/nb/scripts/detect.py
+    - echo "=== [stage: detect] [job: nb_detect_and_resolve] FINISHED ==="
   artifacts:
     paths:
       - affected_projects.json

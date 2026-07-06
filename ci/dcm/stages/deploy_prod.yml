@@ -4,4 +4,6 @@ dcm_deploy_to_prod:
   needs:
     - dcm_deploy_to_dev
   script:
+    - echo "=== [stage: deploy_prod] [job: dcm_deploy_to_prod] STARTED ==="
     - echo "dcm deploy to PROD — not yet implemented"
+    - echo "=== [stage: deploy_prod] [job: dcm_deploy_to_prod] FINISHED ==="

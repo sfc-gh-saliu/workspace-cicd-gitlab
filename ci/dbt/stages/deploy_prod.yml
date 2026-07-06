@@ -4,4 +4,6 @@ dbt_deploy_to_prod:
   needs:
     - dbt_deploy_to_dev
   script:
+    - echo "=== [stage: deploy_prod] [job: dbt_deploy_to_prod] STARTED ==="
     - echo "dbt deploy to PROD — not yet implemented"
+    - echo "=== [stage: deploy_prod] [job: dbt_deploy_to_prod] FINISHED ==="
