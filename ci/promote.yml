@@ -9,13 +9,25 @@ promote_to_main:
     - |
       echo "=== [stage: promote] [job: promote_to_main] STARTED ==="
 
+      urlencode() {
+        printf '%s' "$1" | od -An -tx1 | tr ' ' '\n' | grep . | while read hex; do
+          char=$(printf "\\x$hex")
+          case "$char" in
+            [a-zA-Z0-9._~-]) printf '%s' "$char" ;;
+            *) printf '%%%s' "$hex" | tr 'a-f' 'A-F' ;;
+          esac
+        done
+      }
+
       echo ">> Step 1/4: Configuring git identity..."
       git config user.email "$CI_BOT_EMAIL"
       git config user.name "$CI_BOT_NAME"
       echo ">> Step 1/4: Done."
 
       echo ">> Step 2/4: Setting authenticated remote URL..."
-      REMOTE_URL="https://${GITLAB_CI_BOT_USER}:${GITLAB_CI_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+      ENCODED_USER=$(urlencode "$GITLAB_CI_BOT_USER")
+      ENCODED_TOKEN=$(urlencode "$GITLAB_CI_BOT_TOKEN")
+      REMOTE_URL="https://${ENCODED_USER}:${ENCODED_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git remote set-url origin "$REMOTE_URL"
       echo ">> Step 2/4: Done. (host=${CI_SERVER_HOST}, project=${CI_PROJECT_PATH}, user=${GITLAB_CI_BOT_USER}, token_length=${#GITLAB_CI_BOT_TOKEN})"
 
