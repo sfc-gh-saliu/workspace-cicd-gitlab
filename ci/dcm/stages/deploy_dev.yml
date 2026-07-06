@@ -4,6 +4,6 @@ dcm_deploy_to_dev:
   needs:
     - dcm_validate
   script:
-    - echo "=== [stage: deploy_dev] [job: dcm_deploy_to_dev] STARTED ==="
+    - 'echo "=== [stage: deploy_dev] [job: dcm_deploy_to_dev] STARTED ==="'
     - echo "dcm deploy to DEV — not yet implemented"
-    - echo "=== [stage: deploy_dev] [job: dcm_deploy_to_dev] FINISHED ==="
+    - 'echo "=== [stage: deploy_dev] [job: dcm_deploy_to_dev] FINISHED ==="'

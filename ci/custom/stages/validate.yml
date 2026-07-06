@@ -1,6 +1,6 @@
 custom_validate:
   stage: validate
   script:
-    - echo "=== [stage: validate] [job: custom_validate] STARTED ==="
+    - 'echo "=== [stage: validate] [job: custom_validate] STARTED ==="'
     - python ci/custom/scripts/validate.py
-    - echo "=== [stage: validate] [job: custom_validate] FINISHED ==="
+    - 'echo "=== [stage: validate] [job: custom_validate] FINISHED ==="'

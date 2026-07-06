@@ -6,6 +6,6 @@ nb_validate:
   needs:
     - nb_detect_and_resolve
   script:
-    - echo "=== [stage: validate] [job: nb_validate] STARTED ==="
+    - 'echo "=== [stage: validate] [job: nb_validate] STARTED ==="'
     - python ci/nb/scripts/validate.py
-    - echo "=== [stage: validate] [job: nb_validate] FINISHED ==="
+    - 'echo "=== [stage: validate] [job: nb_validate] FINISHED ==="'

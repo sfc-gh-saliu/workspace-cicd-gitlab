@@ -4,6 +4,6 @@ dbt_deploy_to_dev:
   needs:
     - dbt_validate
   script:
-    - echo "=== [stage: deploy_dev] [job: dbt_deploy_to_dev] STARTED ==="
+    - 'echo "=== [stage: deploy_dev] [job: dbt_deploy_to_dev] STARTED ==="'
     - echo "dbt deploy to DEV — not yet implemented"
-    - echo "=== [stage: deploy_dev] [job: dbt_deploy_to_dev] FINISHED ==="
+    - 'echo "=== [stage: deploy_dev] [job: dbt_deploy_to_dev] FINISHED ==="'
