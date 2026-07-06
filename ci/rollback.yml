@@ -34,7 +34,7 @@ rollback_dev:
       echo ">> Step 3/4: Done."
 
       echo ">> Step 4/4: Force-pushing ${GITLAB_MAIN_BRANCH} to ${GITLAB_DEV_BRANCH}..."
-      git push --force origin "${GITLAB_MAIN_BRANCH}:${GITLAB_DEV_BRANCH}"
+      git push --force origin "origin/${GITLAB_MAIN_BRANCH}:refs/heads/${GITLAB_DEV_BRANCH}"
       echo ">> Step 4/4: Done."
 
       echo "=== [stage: rollback] [job: rollback_dev] FINISHED ==="
