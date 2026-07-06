@@ -1,4 +1,5 @@
 nb_deploy_to_prod:
+  extends: .configure-snowflake-cli
   stage: deploy_prod
   interruptible: true
   variables:
@@ -6,16 +7,8 @@ nb_deploy_to_prod:
   needs:
     - nb_detect_and_resolve
     - nb_execute_in_dev
-  before_script:
-    - 'echo "=== [stage: deploy_prod] [job: nb_deploy_to_prod] STARTED ==="'
-    - echo ">> Installing Snowflake CLI..."
-    - pip install --upgrade snowflake-cli
-    - snow --version
-    - mkdir -p ~/.snowflake
-    - printf '[connections.dev]\n[connections.prod]\n' > ~/.snowflake/config.toml
-    - chmod 0600 ~/.snowflake/config.toml
-    - echo ">> Snowflake CLI ready."
   script:
+    - 'echo "=== [stage: deploy_prod] [job: nb_deploy_to_prod] STARTED ==="'
     - echo ">> Generating deployment manifest..."
     - python ci/nb/scripts/deploy.py > affected_projects.tsv
     - echo ">> Deploying to PROD..."

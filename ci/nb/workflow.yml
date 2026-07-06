@@ -12,6 +12,10 @@ variables:
   NOTEBOOK_MANIFEST_FILE: "notebooks/notebook_manifest.yml"
 
 include:
+  - component: $CI_SERVER_FQDN/snowflake-dev/snowflake-cicd-component/configure-snowflake-cli@1.1.0
+    inputs:
+      template-only: true
+      default-config-file-path: ci/snowflake-config.toml
   - local: 'ci/nb/stages/detect.yml'
   - local: 'ci/nb/stages/validate.yml'
   - local: 'ci/nb/stages/deploy_dev.yml'

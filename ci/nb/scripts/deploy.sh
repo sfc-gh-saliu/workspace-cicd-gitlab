@@ -22,7 +22,7 @@ do
   echo "Deploying ${PROJECT_NAME} (connection: ${CONNECTION})"
   echo "============================================================"
 
-  run_sql "CREATE STAGE IF NOT EXISTS ${STAGE};"
+  run_sql "CREATE STAGE IF NOT EXISTS ${STAGE} DIRECTORY = (ENABLE = TRUE);"
 
   echo "  SQL> REMOVE @${STAGE}/${PROJECT_NAME};"
   snow sql --connection "$CONNECTION" -q "
