@@ -20,7 +20,7 @@ include:
   - local: 'ci/promote.yml'
   - local: 'ci/rollback.yml'
 
-trigger_notebook_workflow:
+notebook_workflow:
   stage: triage
   trigger:
     include: ci/nb/workflow.yml
@@ -29,7 +29,7 @@ trigger_notebook_workflow:
     - changes:
         - notebooks/**/*
 
-trigger_dbt_workflow:
+dbt_workflow:
   stage: triage
   trigger:
     include: ci/dbt/workflow.yml
@@ -38,7 +38,7 @@ trigger_dbt_workflow:
     - changes:
         - dbt-projects/**/*
 
-trigger_dcm_workflow:
+dcm_workflow:
   stage: triage
   trigger:
     include: ci/dcm/workflow.yml
@@ -47,7 +47,7 @@ trigger_dcm_workflow:
     - changes:
         - dcm-projects/**/*
 
-trigger_custom_workflow:
+custom_workflow:
   stage: triage
   trigger:
     include: ci/custom/workflow.yml

@@ -11,7 +11,8 @@ nb_execute_in_dev:
     - echo ">> Installing Snowflake CLI..."
     - pip install --upgrade snowflake-cli
     - snow --version
-    - cp ci/snowflake-config.toml ~/.snowflake/config.toml || (mkdir -p ~/.snowflake && cp ci/snowflake-config.toml ~/.snowflake/config.toml)
+    - mkdir -p ~/.snowflake
+    - printf '[connections.dev]\n[connections.prod]\n' > ~/.snowflake/config.toml
     - chmod 0600 ~/.snowflake/config.toml
     - echo ">> Snowflake CLI ready."
   script:
