@@ -1,5 +1,4 @@
 nb_deploy_to_dev:
-  extends: .configure-snowflake-cli
   stage: deploy_dev
   interruptible: true
   variables:
@@ -8,8 +7,15 @@ nb_deploy_to_dev:
     - nb_detect_and_resolve
     - job: nb_validate
       artifacts: false
-  script:
+  before_script:
     - 'echo "=== [stage: deploy_dev] [job: nb_deploy_to_dev] STARTED ==="'
+    - echo ">> Installing Snowflake CLI..."
+    - pip install --upgrade snowflake-cli
+    - snow --version
+    - cp ci/snowflake-config.toml ~/.snowflake/config.toml || (mkdir -p ~/.snowflake && cp ci/snowflake-config.toml ~/.snowflake/config.toml)
+    - chmod 0600 ~/.snowflake/config.toml
+    - echo ">> Snowflake CLI ready."
+  script:
     - echo ">> Generating deployment manifest..."
     - python ci/nb/scripts/deploy.py > affected_projects.tsv
     - echo ">> Deploying to DEV..."

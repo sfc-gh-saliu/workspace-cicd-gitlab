@@ -182,34 +182,16 @@ The branch names are configured as GitLab CI/CD variables (Settings > CI/CD > Va
 > These two variables must **not** be marked as Protected. The `workflow:rules` in `.gitlab-ci.yml` evaluates `$GITLAB_DEV_BRANCH` on every push to decide whether to create a pipeline. Protected variables are only injected on protected branches, so on a feature branch the variable would be undefined and the pipeline would run unexpectedly.
 
 #### `ci/snowflake-config.toml`
-Minimal Snowflake CLI configuration file containing empty connection stubs (`[connections.dev]` and `[connections.prod]`). This file is deployed to `~/.snowflake/config.toml` by the Snowflake CI/CD Component at the start of each Snowflake-using job. The empty stubs register the connection names so that `SNOWFLAKE_CONNECTIONS_DEV_*` and `SNOWFLAKE_CONNECTIONS_PROD_*` environment variables can supply the actual parameters (account, user, role, etc.) as overrides at runtime.
+Minimal Snowflake CLI configuration file containing empty connection stubs (`[connections.dev]` and `[connections.prod]`). Each Snowflake-using job copies this file to `~/.snowflake/config.toml` in its `before_script`. The empty stubs register the connection names with the CLI so that `SNOWFLAKE_CONNECTIONS_DEV_*` and `SNOWFLAKE_CONNECTIONS_PROD_*` environment variables can supply the actual parameters (account, user, role, etc.) as overrides at runtime.
 
-#### Snowflake CI/CD Component
+The Snowflake CLI only applies `SNOWFLAKE_CONNECTIONS_<NAME>_*` env vars to connections that already exist in `config.toml` — it cannot create connections from env vars alone. The empty stubs satisfy this requirement without storing any credentials in the repository.
 
-Workflows that interact with Snowflake use the official [Snowflake CI/CD Component for GitLab](https://docs.snowflake.com/en/developer-guide/snowflake-cli/cicd/gitlab-component) (`snowflake-dev/snowflake-cicd-component`) to install and configure the Snowflake CLI. The component is included once per workflow with `template-only: true`, which exposes a hidden job template (`.configure-snowflake-cli`). Each job that needs the `snow` CLI uses `extends: .configure-snowflake-cli` to inherit the setup.
-
-What the component handles automatically in each job's `before_script`:
-1. Installs the `uv` Python package manager
-2. Installs the Snowflake CLI via `uv tool install snowflake-cli`
-3. Copies `ci/snowflake-config.toml` to `~/.snowflake/config.toml` with `0600` permissions
-
-Authentication uses **key-pair auth** with the existing `SNOWFLAKE_CONNECTIONS_DEV_*` / `SNOWFLAKE_CONNECTIONS_PROD_*` GitLab CI/CD variables. No changes to the Snowflake service account or GitLab variable setup are needed.
-
-Example workflow include:
+Each Snowflake-using job's `before_script` runs:
 ```yaml
-include:
-  - component: $CI_SERVER_FQDN/snowflake-dev/snowflake-cicd-component/configure-snowflake-cli@1.1.0
-    inputs:
-      template-only: true
-      default-config-file-path: ci/snowflake-config.toml
-```
-
-Example job:
-```yaml
-nb_deploy_to_dev:
-  extends: .configure-snowflake-cli
-  script:
-    - snow sql --connection dev -q "..."
+- pip install --upgrade snowflake-cli
+- snow --version
+- cp ci/snowflake-config.toml ~/.snowflake/config.toml || (mkdir -p ~/.snowflake && cp ci/snowflake-config.toml ~/.snowflake/config.toml)
+- chmod 0600 ~/.snowflake/config.toml
 ```
 
 #### `ci/no-deployment.yml`

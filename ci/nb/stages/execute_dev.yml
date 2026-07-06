@@ -1,5 +1,4 @@
 nb_execute_in_dev:
-  extends: .configure-snowflake-cli
   stage: execute_dev
   interruptible: true
   variables:
@@ -7,8 +6,15 @@ nb_execute_in_dev:
   needs:
     - nb_detect_and_resolve
     - nb_deploy_to_dev
-  script:
+  before_script:
     - 'echo "=== [stage: execute_dev] [job: nb_execute_in_dev] STARTED ==="'
+    - echo ">> Installing Snowflake CLI..."
+    - pip install --upgrade snowflake-cli
+    - snow --version
+    - cp ci/snowflake-config.toml ~/.snowflake/config.toml || (mkdir -p ~/.snowflake && cp ci/snowflake-config.toml ~/.snowflake/config.toml)
+    - chmod 0600 ~/.snowflake/config.toml
+    - echo ">> Snowflake CLI ready."
+  script:
     - echo ">> Generating execution manifest..."
     - python ci/nb/scripts/execute_dev.py
     - echo ">> Executing notebooks in DEV..."
