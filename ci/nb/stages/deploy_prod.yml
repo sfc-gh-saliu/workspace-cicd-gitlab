@@ -11,6 +11,9 @@ nb_deploy_to_prod:
     - echo ">> Installing Snowflake CLI..."
     - pip install --upgrade snowflake-cli
     - snow --version
+    - mkdir -p ~/.snowflake
+    - printf '[connections.dev]\n[connections.prod]\n' > ~/.snowflake/config.toml
+    - chmod 0600 ~/.snowflake/config.toml
     - echo ">> Snowflake CLI ready."
   script:
     - echo ">> Generating deployment manifest..."
