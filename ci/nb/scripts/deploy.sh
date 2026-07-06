@@ -10,18 +10,27 @@ set -euo pipefail
 
 CONNECTION="$1"
 
+run_sql() {
+  echo "  SQL> $1"
+  snow sql --connection "$CONNECTION" -q "$1"
+}
+
 while IFS=$'\t' read -r PROJECT_NAME PROJECT_PATH STAGE NPO
 do
+  echo ""
+  echo "============================================================"
   echo "Deploying ${PROJECT_NAME} (connection: ${CONNECTION})"
+  echo "============================================================"
 
-  snow sql --connection "$CONNECTION" -q "
-  CREATE STAGE IF NOT EXISTS ${STAGE};
-  "
+  run_sql "CREATE STAGE IF NOT EXISTS ${STAGE};"
 
+  echo "  SQL> REMOVE @${STAGE}/${PROJECT_NAME};"
   snow sql --connection "$CONNECTION" -q "
   REMOVE @${STAGE}/${PROJECT_NAME};
   " || true
 
+  echo ""
+  echo "  Uploading files:"
   while IFS= read -r file
   do
     ABS_PATH="$(python -c 'import os,sys; print(os.path.abspath(sys.argv[1]))' "$file")"
@@ -29,28 +38,22 @@ do
     STAGE_DIR="$(dirname "$REL_PATH")"
 
     if [ "$STAGE_DIR" = "." ]; then
-      snow sql --connection "$CONNECTION" -q "
-      PUT 'file://${ABS_PATH}' @${STAGE}/${PROJECT_NAME}
-      AUTO_COMPRESS=FALSE OVERWRITE=TRUE;
-      "
+      SQL="PUT 'file://${ABS_PATH}' @${STAGE}/${PROJECT_NAME} AUTO_COMPRESS=FALSE OVERWRITE=TRUE;"
     else
-      snow sql --connection "$CONNECTION" -q "
-      PUT 'file://${ABS_PATH}' @${STAGE}/${PROJECT_NAME}/${STAGE_DIR}
-      AUTO_COMPRESS=FALSE OVERWRITE=TRUE;
-      "
+      SQL="PUT 'file://${ABS_PATH}' @${STAGE}/${PROJECT_NAME}/${STAGE_DIR} AUTO_COMPRESS=FALSE OVERWRITE=TRUE;"
     fi
+    echo "  SQL> ${SQL}"
+    snow sql --connection "$CONNECTION" -q "$SQL"
   done < <(find "$PROJECT_PATH" -type f \
     -not -path '*/__pycache__/*' \
     -not -path '*/.ipynb_checkpoints/*' \
     -not -name '.DS_Store')
 
-  snow sql --connection "$CONNECTION" -q "
-  CREATE NOTEBOOK PROJECT IF NOT EXISTS ${NPO}
-  FROM '@${STAGE}/${PROJECT_NAME}';
-  "
+  echo ""
+  run_sql "CREATE NOTEBOOK PROJECT IF NOT EXISTS ${NPO} FROM '@${STAGE}/${PROJECT_NAME}';"
 
-  snow sql --connection "$CONNECTION" -q "
-  ALTER NOTEBOOK PROJECT ${NPO}
-  ADD VERSION FROM '@${STAGE}/${PROJECT_NAME}';
-  "
+  run_sql "ALTER NOTEBOOK PROJECT ${NPO} ADD VERSION FROM '@${STAGE}/${PROJECT_NAME}';"
+
+  echo ""
+  echo "  Done: ${PROJECT_NAME}"
 done < affected_projects.tsv

@@ -27,6 +27,11 @@ non_deleted = subprocess.check_output(
     text=True
 ).splitlines()
 
+added = set(subprocess.check_output(
+    ["git", "diff", "--name-only", "--diff-filter=A", before, after],
+    text=True
+).splitlines())
+
 deleted = subprocess.check_output(
     ["git", "diff", "--name-only", "--diff-filter=D", before, after],
     text=True
@@ -85,22 +90,67 @@ if unmatched:
 with open("affected_projects.json", "w") as f:
     json.dump(dedup, f, indent=2)
 
+print(f"{'=' * 60}")
+print(f"CHANGESET SUMMARY")
+print(f"{'=' * 60}")
+
 if non_deleted_notebooks:
-    print("Added/modified files:")
+    print("\nAdded/modified files:")
     for p in non_deleted_notebooks:
-        print("  -", p)
+        print(f"  + {p}")
 
 if deleted_notebooks:
-    print("Deleted files:")
+    print("\nDeleted files:")
     for p in deleted_notebooks:
-        print("  -", p)
+        print(f"  - {p}")
 
 if ignored_deletions:
-    print("Ignored deletions (not in any project):")
+    print("\nIgnored deletions (not in any project):")
     for p in ignored_deletions:
-        print("  -", p)
+        print(f"  ~ {p}")
 
 if manifest_changed:
-    print(f"Manifest changed: {manifest_file}")
+    print(f"\nManifest changed: {manifest_file}")
 
-print(f"Affected projects: {len(dedup)}")
+print(f"\n{'=' * 60}")
+print(f"AFFECTED PROJECTS: {len(dedup)}")
+print(f"{'=' * 60}")
+
+for project in dedup:
+    project_root = project["project_path"].rstrip("/") + "/"
+    project_name = project["project_name"]
+
+    current_files = subprocess.check_output(
+        ["git", "ls-tree", "-r", "--name-only", after, "--", project_root],
+        text=True
+    ).splitlines()
+
+    deleted_in_project = [p for p in deleted_notebooks if p.startswith(project_root)]
+
+    files_to_deploy = [f for f in current_files if f not in deleted_in_project]
+
+    print(f"\n  Project: {project_name}")
+    print(f"  Path:    {project['project_path']}")
+    print(f"  Main:    {project['main_file']}")
+
+    if files_to_deploy:
+        print(f"  Files to deploy ({len(files_to_deploy)}):")
+        for f in files_to_deploy:
+            relative = f[len(project_root):]
+            if f in added:
+                marker = "(new)"
+            elif f in non_deleted_notebooks:
+                marker = "(modified)"
+            else:
+                marker = ""
+            print(f"    -> {relative} {marker}")
+    else:
+        print(f"  Files to deploy: (none — project folder is empty)")
+
+    if deleted_in_project:
+        print(f"  Files to remove ({len(deleted_in_project)}):")
+        for f in deleted_in_project:
+            relative = f[len(project_root):]
+            print(f"    x  {relative}")
+
+print(f"\n{'=' * 60}")
