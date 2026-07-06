@@ -14,9 +14,13 @@ nb_deploy_to_dev:
     - snow --version
     - echo ">> Snowflake CLI ready."
   script:
+    - echo ">> snow version:"
+    - snow --version
     - echo ">> Connection name = ${SNOWFLAKE_CONNECTION_DEV:-NOT SET}"
-    - echo ">> Checking SNOWFLAKE_CONNECTIONS_DEV_* vars..."
-    - env | grep -i SNOWFLAKE_CONNECTIONS_DEV | sed 's/=.*/=***/' || echo ">> WARNING - No SNOWFLAKE_CONNECTIONS_DEV_* variables found in environment"
+    - echo ">> Checking SNOWFLAKE_CONNECTIONS_DEV_* vars (exact names)..."
+    - env | grep SNOWFLAKE_CONNECTIONS_DEV | sed 's/=.*/=***/' || echo ">> WARNING - No SNOWFLAKE_CONNECTIONS_DEV_* variables found"
+    - echo ">> snow connection list:"
+    - snow connection list || true
     - echo ">> Generating deployment manifest..."
     - python ci/nb/scripts/deploy.py > affected_projects.tsv
     - echo ">> Deploying to DEV..."
