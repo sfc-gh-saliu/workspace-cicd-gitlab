@@ -108,8 +108,6 @@ The root `.gitlab-ci.yml` acts as the triage layer. It inspects which folders we
 CODEOWNERS                        # <-- assigns code owner groups
 ci/
   variables.yml
-  snowflake-config.toml           # <-- empty connection stubs for Snowflake CLI
-  no-deployment.yml
   promote.yml
   rollback.yml
   nb/
@@ -151,7 +149,7 @@ If a single commit touches multiple folders, all relevant workflows run in paral
 
 ### No-Deployment Workflows
 
-When a commit touches no project folders (e.g. only `README.md`, `CODEOWNERS`, or CI config files), no workflow-specific stages are included. However, `ci/no-deployment.yml` is always included as the last entry in the root `.gitlab-ci.yml`, which brings in `ci/promote.yml` and `ci/rollback.yml`, so the pipeline still runs:
+When a commit touches no project folders (e.g. only `README.md`, `CODEOWNERS`, or CI config files), no workflow-specific stages are triggered. The promote and rollback jobs (included directly in the root `.gitlab-ci.yml`) still run, so the pipeline:
 
 1. The MR is reviewed and merged to `dev`
 2. No detect, validate, or deploy stages run — there is nothing to deploy
@@ -181,21 +179,19 @@ The branch names are configured as GitLab CI/CD variables (Settings > CI/CD > Va
 
 > These two variables must **not** be marked as Protected. The `workflow:rules` in `.gitlab-ci.yml` evaluates `$GITLAB_DEV_BRANCH` on every push to decide whether to create a pipeline. Protected variables are only injected on protected branches, so on a feature branch the variable would be undefined and the pipeline would run unexpectedly.
 
-#### `ci/snowflake-config.toml`
-Minimal Snowflake CLI configuration file containing empty connection stubs (`[connections.dev]` and `[connections.prod]`). Each Snowflake-using job copies this file to `~/.snowflake/config.toml` in its `before_script`. The empty stubs register the connection names with the CLI so that `SNOWFLAKE_CONNECTIONS_DEV_*` and `SNOWFLAKE_CONNECTIONS_PROD_*` environment variables can supply the actual parameters (account, user, role, etc.) as overrides at runtime.
+#### Snowflake CLI Setup
+Each Snowflake-using job installs the CLI and creates a minimal `config.toml` with empty connection stubs in its `before_script`. The empty stubs register the connection names (`dev`, `prod`) with the CLI so that `SNOWFLAKE_CONNECTIONS_DEV_*` and `SNOWFLAKE_CONNECTIONS_PROD_*` environment variables can supply the actual parameters (account, user, role, etc.) as overrides at runtime.
 
-The Snowflake CLI only applies `SNOWFLAKE_CONNECTIONS_<NAME>_*` env vars to connections that already exist in `config.toml` — it cannot create connections from env vars alone. The empty stubs satisfy this requirement without storing any credentials in the repository.
+The Snowflake CLI only applies `SNOWFLAKE_CONNECTIONS_<NAME>_*` env vars to connections that already exist in `config.toml` — it cannot create connections from env vars alone. The inline stubs satisfy this requirement without storing any credentials in the repository.
 
 Each Snowflake-using job's `before_script` runs:
 ```yaml
 - pip install --upgrade snowflake-cli
 - snow --version
-- cp ci/snowflake-config.toml ~/.snowflake/config.toml || (mkdir -p ~/.snowflake && cp ci/snowflake-config.toml ~/.snowflake/config.toml)
+- mkdir -p ~/.snowflake
+- printf '[connections.dev]\n[connections.prod]\n' > ~/.snowflake/config.toml
 - chmod 0600 ~/.snowflake/config.toml
 ```
-
-#### `ci/no-deployment.yml`
-Always included as the last entry in the root `.gitlab-ci.yml`. Defines the `promote` and `rollback` stages and includes `ci/promote.yml` and `ci/rollback.yml`. Ensures promote/rollback stages are always last in the merged stage order.
 
 #### `ci/promote.yml`
 Runs after all workflow stages pass (or immediately if no workflows trigger). Fast-forwards `GITLAB_MAIN_BRANCH` to `GITLAB_DEV_BRANCH` via `git push`. Retries up to 2 times on failure before rollback kicks in.
