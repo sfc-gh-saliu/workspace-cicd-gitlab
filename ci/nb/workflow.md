@@ -92,7 +92,7 @@ construct the fully qualified name.
 | Role | `SNOWFLAKE_CONNECTIONS_DEV_ROLE` | `SNOWFLAKE_CONNECTIONS_PROD_ROLE` |
 | Warehouse | `SNOWFLAKE_CONNECTIONS_DEV_WAREHOUSE` | `SNOWFLAKE_CONNECTIONS_PROD_WAREHOUSE` |
 | Authenticator | `SNOWFLAKE_CONNECTIONS_DEV_AUTHENTICATOR` | `SNOWFLAKE_CONNECTIONS_PROD_AUTHENTICATOR` |
-| Private key (raw PEM) | `SNOWFLAKE_CONNECTIONS_DEV_PRIVATE_KEY_RAW` | `SNOWFLAKE_CONNECTIONS_PROD_PRIVATE_KEY_RAW` |
+| Private key (file) | `SNOWFLAKE_CONNECTIONS_DEV_PRIVATE_KEY_FILE` | `SNOWFLAKE_CONNECTIONS_PROD_PRIVATE_KEY_FILE` |
 
 The `SNOWFLAKE_CONNECTIONS_<NAME>_*` variables are read directly by the Snowflake CLI — no config file is needed. See [Snowflake Connection Setup](../../docs/snowflake-connection.md) for full setup instructions.
 
